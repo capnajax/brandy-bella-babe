@@ -1,0 +1,20 @@
+{
+  "name": "brandy-bella-babe",
+  "version": "1.0.0",
+  "description": "controler for halloween dolls animatronics",
+  "main": "index.js",
+  "type": "commonjs",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/capnajax/brandy-bella-babe.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/capnajax/brandy-bella-babe/issues"
+  },
+  "homepage": "https://github.com/capnajax/brandy-bella-babe#readme"
+}
