@@ -16,6 +16,7 @@ if [ "$1" == '-r' ]; then
       cd pi-blaster
       sed -e 's/#define CYCLE_TIME_US	10000/#define CYCLE_TIME_US	20000/' \
         -i pi-blaster.c
+      cat pi-blaster.c | head -n 120 | tail -n 10
       ./autogen.sh
       ./configure
       make

@@ -4,7 +4,6 @@ const diagnostic = require('./lib/plugins/diagnostic');
 const ld27mg = require('./lib/plugins/ld27mg');
 const Servo = require('./lib/servo');
 
-
 let debugMode = {
   outStream: null,
   diagnosticPlugin: false,
@@ -29,9 +28,9 @@ async function main() {
   if (debugMode.testPattern) {
     while(true) {
       servo.angleZero();
-      await delay(1000);
+      await delay(2000);
       servo.angleMax();
-      await delay(1000);
+      await delay(2000);
     }
   } else {
     console.log('zero');
@@ -57,6 +56,7 @@ function parseCommandLine() {
 
   let hasErrors = false;
   let debugLevel = 0;
+  let isDebugLevelSet = false;
 
   let outstreamSet = false;
 
