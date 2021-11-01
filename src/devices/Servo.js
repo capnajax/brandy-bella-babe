@@ -1,20 +1,22 @@
+'use strict';
 
-const childProcess = require('child_process');
-const fs = require('fs').promises;
+const fs = require('fs');
+const Device = require('./Device');
 
-class Servo {
+class Servo extends Device {
 
-  constructor (plugin, pin, options) {
-    this.plugin = plugin;
-    this.pin = pin;
+  constructor (options) {
+    super();
+    this.plugin = require('./servo-plugins/'+options.plugin);
+    this.pin = options.pin;
+    
+    console.log('Servo: options', options);
+    console.log('Servo: pin', this.pin);
+    console.log('Servo: plugin', this.plugin);
 
-    // if (undefined === options.outStream || null === options.outStream) {
-    //   // this.fifo_p = fs.open('/dev/pi-plaster', 'w');
-    // } else if ('-' === options.outStream) {
-    //   this.fifo_p = Promise.resolve(process.stdout);
-    // } else {
-    //   this.fifo_p = fs.open(options.outStream, 'a');
-    // }
+    this.fifo = fs.createWriteStream(
+      '/dev/pi-blaster',
+      {flags: 'w', encoding: 'ascii'});
 
     this.period = this.plugin.period || 10000;
     this.maxPulse = this.plugin.maxPulse || this.period;
@@ -25,19 +27,20 @@ class Servo {
   async _pulse(pulseWidth) {
 
     console.log('pulse', pulseWidth);
-    childProcess.execSync(`echo ${this.pin}=${pulseWidth} > /dev/pi-blaster`);
+    this.fifo.write(`${this.pin}=${pulseWidth}\n`);
 
   }
 
   async angle(degrees) {
 
+    console.log('Servo::angle', degrees);
 
     let sweepPct = Math.min(Math.max(1.0*degrees/this.sweep, 0), 1);
 
-    let period = this.period || 10000
-    let minPulse = 0;
-    let maxPulse = period;
-    let pulseSize = sweepPct * (maxPulse - minPulse) + minPulse;
+    let period = this.period || 10000;
+    // let minPulse = 0;
+    // let maxPulse = period;
+    let pulseSize = sweepPct * (this.maxPulse - this.minPulse) + this.minPulse;
     let pulse = pulseSize/period;
 
     console.log('angle', degrees, pulse);
@@ -70,7 +73,6 @@ class Servo {
     }
 
   }
-
 }
 
 module.exports = Servo;

@@ -3,7 +3,10 @@
   "version": "1.0.0",
   "description": "controler for halloween dolls animatronics",
   "main": "index.js",
-  "type": "commonjs",
+  "type": "module",
+  "engines": {
+    "node": "^10.24.1"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -16,5 +19,9 @@
   "bugs": {
     "url": "https://github.com/capnajax/brandy-bella-babe/issues"
   },
-  "homepage": "https://github.com/capnajax/brandy-bella-babe#readme"
+  "homepage": "https://github.com/capnajax/brandy-bella-babe#readme",
+  "dependencies": {
+    "pigpio": "^3.3.1",
+    "yaml": "^1.10.2"
+  }
 }

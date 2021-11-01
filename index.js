@@ -1,64 +1,78 @@
 'use strict';
 
-const diagnostic = require('./lib/plugins/diagnostic');
-const ld27mg = require('./lib/plugins/ld27mg');
-const Servo = require('./lib/servo');
+const fs = require('fs');
+const path = require('path');
+const YAML = require('yaml');
 
-let debugMode = {
-  outStream: null,
-  diagnosticPlugin: false,
-  testPattern: false
-};
+// const diagnostic = require('./src/devices/servo-plugins/diagnostic');
+// const ld27mg = require('./src/devices/servo-plugins/ld27mg');
+// const Servo = require('./src/devices/Servo');
 
-async function delay(ms) {
-  return new Promise(resolve => {
-    setTimeout(resolve, ms);
-  });
-}
+const DispatchOperator = require('./src/DispatchOperator');
 
-async function main() {
+async function main(options) {
 
-  const plugin = debugMode.diagnosticPlugin ? diagnostic : ld27mg;
-  const servoOptions = {
-    outStream: debugMode.outStream
-  };
+  let config = options.configFile
+    ? await fs.promises.readFile(
+          path.join(__dirname, 'config', `${options.configFile}.yaml`))
+    : null;
+  
+  console.log(config);
+  console.log(config.toString());
 
-  const servo = new Servo(plugin, 17, servoOptions);
+  config = config ? YAML.parse(config.toString()) : {};
+    
+  new DispatchOperator(config);
 
-  if (debugMode.testPattern) {
-    while(true) {
-      servo.angleZero();
-      await delay(2000);
-      servo.angleMax();
-      await delay(2000);
-    }
-  } else {
-    console.log('zero');
-    servo.angleZero();
-    await delay(1000);
-    console.log('max');
-    servo.angleMax();
-    let θ = 270;
-    do {
-      await delay(500);
-      θ-=15;
-      console.log(θ);
-      servo.angle(θ);
-    } while(θ > 0);
-  }
+  // const plugin = debugMode.diagnosticPlugin ? diagnostic : ld27mg;
+  // const servoOptions = {
+  //   plugin,
+  //   pin:17,
+  //   outStream: debugMode.outStream
+  // };
 
+  // const servo = new Servo(servoOptions);
+
+  // if (options.debugMode.testPattern) {
+  //   while(true) {
+  //     servo.angleZero();
+  //     await delay(2000);
+  //     servo.angleMax();
+  //     await delay(2000);
+  //   }
+  // } else {
+  //   console.log('zero');
+  //   servo.angleZero();
+  //   await delay(1000);
+  //   console.log('max');
+  //   servo.angleMax();
+  //   let θ = 270;
+  //   do {
+  //     await delay(500);
+  //     θ-=15;
+  //     console.log(θ);
+  //     servo.angle(θ);
+  //   } while(θ > 0);
+  // }
 } 
 
 function parseCommandLine() {
   
-  debugMode.diagnosticPlugin = false;
-  debugMode.testPattern = false;
+  // let debugMode = {
+  //   outStream: null,
+  //   diagnosticPlugin: false,
+  //   testPattern: false
+  // };
+  
+  // debugMode.diagnosticPlugin = false;
+  // debugMode.testPattern = false;
 
   let hasErrors = false;
-  let debugLevel = 0;
-  let isDebugLevelSet = false;
+  // let debugLevel = 0;
+  // let isDebugLevelSet = false;
+  let configFile = null;
 
-  let outstreamSet = false;
+  // let outstreamSet = false;
 
   for (let i = 2; i < process.argv.length; i++) {
 
@@ -69,46 +83,50 @@ function parseCommandLine() {
     console.log(`{p, v} == {${p}, ${v}}`);
 
     switch (p) {
-    case '--debug':
-      if (!isDebugLevelSet) {
-        debugMode.diagnosticPlugin = true;
-        debugMode.testPattern = true;
-        debugMode.outStream = '-';
-      }
+    case '--config':
+      configFile = v;
       break;
-    case '--debugLevel':
-      isDebugLevelSet = true;
-      if (v === undefined) {
-        v = process.argv[++i];
-      }
-      try {
-        debugLevel = Number.parseInt(v);
-      } catch(e) {
-        console.error(`debug level "${v}" invalid`);
-        hasErrors = true;
-      }
-      debugLevel = Math.abs(debugLevel);
+
+    // case '--debug':
+    //   if (!isDebugLevelSet) {
+    //     debugMode.diagnosticPlugin = true;
+    //     debugMode.testPattern = true;
+    //     debugMode.outStream = '-';
+    //   }
+    //   break;
+    // case '--debugLevel':
+    //   isDebugLevelSet = true;
+    //   if (v === undefined) {
+    //     v = process.argv[++i];
+    //   }
+    //   try {
+    //     debugLevel = Number.parseInt(v);
+    //   } catch(e) {
+    //     console.error(`debug level "${v}" invalid`);
+    //     hasErrors = true;
+    //   }
+    //   debugLevel = Math.abs(debugLevel);
       
-      switch(debugLevel) {
-      case 0:
-        break;
-      case 1:
-        debugMode.testPattern = true;
-        break;
-      case 2: 
-        debugMode.testPattern = true;
-        debugMode.diagnosticPlugin = true;
-        break;
-      default: // case 3 or higher
-        debugMode.testPattern = true;
-        debugMode.diagnosticPlugin = true;
-        outstreamSet || (debugMode.outStream = '-');
-      }
-      break;
-    case '--outStream':
-      debugMode.outStream = v;
-      outstreamSet = true;
-      break;
+    //   switch(debugLevel) {
+    //   case 0:
+    //     break;
+    //   case 1:
+    //     debugMode.testPattern = true;
+    //     break;
+    //   case 2: 
+    //     debugMode.testPattern = true;
+    //     debugMode.diagnosticPlugin = true;
+    //     break;
+    //   default: // case 3 or higher
+    //     debugMode.testPattern = true;
+    //     debugMode.diagnosticPlugin = true;
+    //     outstreamSet || (debugMode.outStream = '-');
+    //   }
+    //   break;
+    // case '--outStream':
+    //   debugMode.outStream = v;
+    //   outstreamSet = true;
+    //   break;
     default:
       console.error('unknown option', p);
       hasErrors = true;
@@ -121,8 +139,9 @@ function parseCommandLine() {
     process.exit(1);
   }
 
+  return {configFile /*, debugMode */};
+
 }
 
 
-parseCommandLine();
-main();
+main(parseCommandLine());

@@ -1,0 +1,38 @@
+devices:
+- name: headServo
+  class: servo
+  options:
+    pin: 17
+    plugin: ld27mg
+
+dispatchers:
+- name: lookAtKids
+  class: moveServo
+  effects:
+  - name: moveHead
+    options:
+      angle: 160
+  input: api
+  options:
+    presence: true
+- name: lookaway
+  class: moveServo
+  effects: 
+  - name: moveHead
+    options:
+      angle: 230
+  input: api
+  options:
+    presence: false
+
+effects:
+- name: moveHead
+  class: moveServo
+  devices:
+  - headServo
+  
+inputs:
+- name: api
+  class: api
+  options:
+    port: 80

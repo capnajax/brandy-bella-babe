@@ -1,0 +1,37 @@
+devices: []
+
+dispatchers:
+- name: lookAtKids
+  class: messageDolls
+  effects:
+  - name: messageDolls
+    options:
+      host: '192.168.1.191'
+  - name: messageDolls
+    options:
+      host: '192.168.1.192'
+  input: motionSensor
+  options: {}
+# - name: lookaway
+#   class: messageDolls
+#   effects: 
+#   - name: messageDolls
+#     options:
+#       host: babe
+#   - name: messageDolls
+#     options:
+#       host: bella
+#   input: motionSensor
+#   options:
+#     presence: false
+
+effects:
+- name: messageDolls
+  class: messageDolls
+  devices: []
+  
+inputs:
+- name: motionSensor
+  class: motionSensor
+  options:
+    pin: 23
